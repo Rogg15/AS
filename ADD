@@ -1,4 +1,17 @@
 
+
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Rogg15/AS/refs/heads/main/ADD"))()
+
+
+
+
+
+
+
+
+
+
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "Xscrobic Prime", HidePremium = false, SaveConfig = true, ConfigFolder = "Prime", IntroEnabled = false, IntroText = "sxxx"})
 local ACL_LoadTime = tick()
@@ -17,22 +30,20 @@ local Section = Tab:AddSection({
 
 Tab:AddToggle({Name = "Auto Sell Ore",Default = false,Callback = function(v)
     if v == true then
-    game:GetService('RunService'):BindToRenderStep("Quick", 0 , function()
+    game:GetService('RunService'):BindToRenderStep("Quick1", 0 , function()
         game:GetService("ReplicatedStorage").events.remotes.collectEggs:FireServer()
         wait()
         game:GetService("ReplicatedStorage").events.remotes.depositEggs:FireServer()
     end)
 
     elseif v == false then
-        game:GetService('RunService'):UnbindFromRenderStep("Quick")
+        game:GetService('RunService'):UnbindFromRenderStep("Quick1")
     end 	
 end    
 })
 Tab:AddToggle({Name = "Click Fox",Default = false,Callback = function(v)
     if v == true then
         game:GetService('RunService'):BindToRenderStep("Click2", 0 , function()
-
-            
             for i,v in ipairs(workspace.playerPlots[player.Name].foxes:GetDescendants()) do
                 if v.Name == "Fox"  then
                     fireclickdetector(v.pet.ClickDetector)
@@ -46,13 +57,13 @@ end
 })
 Tab:AddToggle({Name = "Fox Frenzy",Default = false,Callback = function(v)
     if v == true then
-    game:GetService('RunService'):BindToRenderStep("Quick", 0 , function()
+    game:GetService('RunService'):BindToRenderStep("here", 0 , function()
     if game:GetService("ReplicatedStorage").foxFrienzy.Value == false then
         game:GetService("ReplicatedStorage").foxFrienzy.Value = true
     end
     end)
     elseif v == false then
-        game:GetService('RunService'):UnbindFromRenderStep("Quick")
+        game:GetService('RunService'):UnbindFromRenderStep("here")
         game:GetService("ReplicatedStorage").foxFrienzy.Value = false
     end 	
 end    
@@ -96,7 +107,7 @@ end
 })
 Tab:AddToggle({Name = "Auto SpawnMiners",Default = false,Callback = function(v)
     if v == true then
-    game:GetService('RunService'):BindToRenderStep("Quick", 0 , function()
+    game:GetService('RunService'):BindToRenderStep("Quick3", 0 , function()
         local args = {
             [1] = 1,
             [2] = 0
@@ -105,7 +116,7 @@ Tab:AddToggle({Name = "Auto SpawnMiners",Default = false,Callback = function(v)
     end)
 
     elseif v == false then
-        game:GetService('RunService'):UnbindFromRenderStep("Quick")
+        game:GetService('RunService'):UnbindFromRenderStep("Quick3")
         game:GetService("ReplicatedStorage").foxFrienzy.Value = false
     end 	
 end    
@@ -118,12 +129,16 @@ end
 
 
 Tab:AddButton({Name = "Unlock all Gamepass",Callback = function()
+
     game:GetService("Players").LocalPlayer.gamepassValues.x2HousingCapacity.Value = true
     game:GetService("Players").LocalPlayer.gamepassValues.x2GoldEggs.Value = true
     game:GetService("Players").LocalPlayer.gamepassValues.x2Chickens.Value = true
     game:GetService("Players").LocalPlayer.gamepassValues.x2Cash.Value = true
     game:GetService("Players").LocalPlayer.gamepassValues.vip.Value = true
     game:GetService("Players").LocalPlayer.gamepassValues.cheapUpgrades.Value = true   
+
+
+
 end    
 })
 
