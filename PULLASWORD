@@ -124,7 +124,7 @@ Tab:AddToggle({Name = "Auto Fight",
 if game:GetService("Players").LocalPlayer:FindFirstChild("World").Value == 1 then 
     local args = {
         [1] = "-4",
-        [2] = workspace:WaitForChild("2_Synapse"),
+        [2] = game:GetService("Players").LocalPlayer.Character,
         [3] = false
     }
     
@@ -146,50 +146,4 @@ Tab:AddButton({Name = "Redeem All Codes",Callback = function()
     end
 end    
 })
-
-
-
-
-
-
-local Button = Tab:AddDropdown({
-    Name = "Foods", -- Dropdown name
-    Default = areasTable[1] or "N/A", -- Default selection
-    Options = areasTable, -- Populate with areasTable
-    Callback = function(value)
-        print("Selected Value:", value) -- Print the selected dropdown value
-    end
-})
-
-
-
-local selectedValue = "1" -- Default value
-
--- Add the dropdown to your Tab
-local Dropdown = Tab:AddDropdown({Name = "Foods",Default = selectedValue, Options = {"1", "50000"}, Callback = function(value)
-
-        selectedValue = value -- Update the selected value when the dropdown changes
-        print("Selected Value:", selectedValue)
-    end
-})
-
--- Add the button to your Tab
-local Button = Tab:AddButton({Name = "Refresh List", Callback = function()
-        -- Perform an action based on the selected dropdown value
-        if selectedValue == "1" then
-            print("Button clicked with dropdown value:", selectedValue)
-            -- Add your code for the "1" option here
-        elseif selectedValue == "50000" then
-            print("Button clicked with dropdown value:", selectedValue)
-            -- Add your code for the "50000" option here
-        else
-            print("Unknown value selected.")
-        end
-    end
-})
-
---Dropdown:Refresh(List<table>,true)
-
---Dropdown:Set("dropdown option")
-
 
