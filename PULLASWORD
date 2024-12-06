@@ -1,0 +1,195 @@
+--main
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Xscrobic Prime", HidePremium = false, SaveConfig = true, ConfigFolder = "Prime", IntroEnabled = false, IntroText = "Dahood"})
+local ACL_LoadTime = tick()
+local frame = script.Parent
+local player = game.Players.LocalPlayer
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+local Tab = Window:MakeTab({Name = "Farms",Icon = "rbxassetid://",PremiumOnly = false
+})
+local Section = Tab:AddSection({
+	Name = "ServerId: "..game.PlaceId
+})
+local areas = game:GetService("Workspace").EventBosses:GetChildren()
+local areasTable = {}
+local selectedValue = nil 
+local autoAttackEnabled = false
+for i, v in pairs(areas) do
+    if v:FindFirstChild("Head") and v.Head:FindFirstChild("NameTag") and v.Head.NameTag:FindFirstChild("UpperText") then
+        table.insert(areasTable, v.Head.NameTag.UpperText.Text)
+    else
+        print("Warning: Missing Head/NameTag/UpperText in:", v.Name)
+    end
+end
+for _, descendant in ipairs(game:GetService("Workspace").EventBosses:GetDescendants()) do
+    if descendant:IsA("ProximityPrompt") then
+        descendant.HoldDuration = 0
+        descendant.MaxActivationDistance = 17
+    end
+end
+
+local Dropdown = Tab:AddDropdown({
+    Name = "Mobs",
+    Default = areasTable[1] or "N/A", 
+    Options = areasTable,
+    Callback = function(value)
+        selectedValue = value 
+        print("Selected Value:", selectedValue) 
+    end
+})
+
+
+Tab:AddToggle({Name = "Auto Fight",
+    Default = false, 
+    Callback = function(v)
+
+        autoAttackEnabled = v
+        if autoAttackEnabled then
+
+            print("AutoAttack enabled.")
+
+                if selectedValue then
+
+                for _, area in pairs(areas) do
+                    if area:FindFirstChild("Head") and area.Head:FindFirstChild("NameTag") and area.Head.NameTag:FindFirstChild("UpperText") then
+                        if area.Head.NameTag.UpperText.Text == selectedValue then
+                            print("Matching area found:", selectedValue)
+
+                            local function checkAndTeleport()
+                                if area and area:FindFirstChild("Head") then
+                                    local player = game.Players.LocalPlayer
+                                    local playerPosition = player.Character.HumanoidRootPart.Position
+                                    local targetPosition = area.Head.Position
+                                    local radius = 150
+                                    local distance = (playerPosition - targetPosition).Magnitude
+                                
+                                    if distance <= radius then
+                                        player.Character.HumanoidRootPart.CFrame = area.Monster.PrimaryPart.CFrame
+                                        if selectedValue then
+                                        end
+                                        --print("Teleported to:", selectedValue, "within radius:", distance)
+                                    else
+                                        --print("Target is out of radius. Distance:", distance)
+                                    end
+                                else
+                                    --print("Area or Head no longer exists.")
+                                end
+                                end
+
+
+                            local function proximity()
+                                for _, descendant in ipairs(area.Table.Attachment:GetDescendants()) do
+                                    if descendant:IsA("ProximityPrompt") then
+                                        descendant.HoldDuration = 0
+                                        descendant.MaxActivationDistance = 17
+                                        fireproximityprompt(descendant)
+                                        --print("Proximity Fired")
+                                    end
+                                end 
+                            end
+
+                
+                            while autoAttackEnabled do
+                            local ingt = game.Players.LocalPlayer:FindFirstChild("InFight")
+                            if ingt then
+                                --print("InFight found, performing actions...")
+                                task.wait(0.1)
+                            else
+                                checkAndTeleport()
+                                task.wait(0.1)
+                                proximity()
+                            end
+                            end
+
+
+                        end
+                    end
+                end
+
+                    else
+                    print("No value selected from the dropdown.")
+                end
+
+
+        else
+            print("AutoAttack disabled.")
+            game:GetService('RunService'):UnbindFromRenderStep("Auto-Attack")
+        end
+    end
+})
+
+
+if game:GetService("Players").LocalPlayer:FindFirstChild("World").Value == 1 then 
+    local args = {
+        [1] = "-4",
+        [2] = workspace:WaitForChild("2_Synapse"),
+        [3] = false
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("PortalC"):FireServer(unpack(args))
+else
+    
+end
+
+
+Tab:AddButton({Name = "Redeem All Codes",Callback = function()
+    local areas = game:GetService("ReplicatedStorage"):WaitForChild("Codes"):GetChildren()
+    for i, v in pairs(areas) do
+        local codeChild = v:FindFirstChild("Code")
+        if codeChild and codeChild:IsA("StringValue") then
+            game:GetService("ReplicatedStorage").GameClient.Events.RemoteEvent.CodeEventSR:FireServer(codeChild.Value)
+        else
+        end
+        task.wait(0.1)
+    end
+end    
+})
+
+
+
+
+
+
+local Button = Tab:AddDropdown({
+    Name = "Foods", -- Dropdown name
+    Default = areasTable[1] or "N/A", -- Default selection
+    Options = areasTable, -- Populate with areasTable
+    Callback = function(value)
+        print("Selected Value:", value) -- Print the selected dropdown value
+    end
+})
+
+
+
+local selectedValue = "1" -- Default value
+
+-- Add the dropdown to your Tab
+local Dropdown = Tab:AddDropdown({Name = "Foods",Default = selectedValue, Options = {"1", "50000"}, Callback = function(value)
+
+        selectedValue = value -- Update the selected value when the dropdown changes
+        print("Selected Value:", selectedValue)
+    end
+})
+
+-- Add the button to your Tab
+local Button = Tab:AddButton({Name = "Refresh List", Callback = function()
+        -- Perform an action based on the selected dropdown value
+        if selectedValue == "1" then
+            print("Button clicked with dropdown value:", selectedValue)
+            -- Add your code for the "1" option here
+        elseif selectedValue == "50000" then
+            print("Button clicked with dropdown value:", selectedValue)
+            -- Add your code for the "50000" option here
+        else
+            print("Unknown value selected.")
+        end
+    end
+})
+
+--Dropdown:Refresh(List<table>,true)
+
+--Dropdown:Set("dropdown option")
+
+
