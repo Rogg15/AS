@@ -131,7 +131,7 @@ Tab:AddToggle({Name = "Auto Fight",
             local player = game.Players.LocalPlayer
             local playerPosition = player.Character.HumanoidRootPart.Position
             local targetPosition = area.Head.Position
-            local radius = 150
+            local radius = 100
             local distance = (playerPosition - targetPosition).Magnitude
         
             if distance <= radius then
@@ -354,7 +354,7 @@ Tab:AddToggle({Name = "Auto Fight Sword",
             local player = game.Players.LocalPlayer
             local playerPosition = player.Character.HumanoidRootPart.Position
             local targetPosition = area.Head.Position
-            local radius = 150
+            local radius = 50
             local distance = (playerPosition - targetPosition).Magnitude
         
             if distance <= radius then
