@@ -1,17 +1,51 @@
 --main
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "Xscrobic Prime", HidePremium = false, SaveConfig = true, ConfigFolder = "Prime", IntroEnabled = false, IntroText = "Dahood"})
-local ACL_LoadTime = tick()
 local frame = script.Parent
 local player = game.Players.LocalPlayer
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
-local Tab = Window:MakeTab({Name = "Farms",Icon = "rbxassetid://",PremiumOnly = false
+
+local Tab = Window:MakeTab({Name = "Info",Icon = "rbxassetid://",PremiumOnly = false
 })
 local Section = Tab:AddSection({
 	Name = "ServerId: "..game.PlaceId
 })
+
+
+local notif = nil
+local notiftime = 4
+
+
+Tab:AddToggle({Name = "Notifications",Default = false,Callback = function(v)
+    if v == true then
+        notif = true
+        elseif v == false then
+        notif = false
+    end 
+end    
+})
+
+
+
+
+
+
+
+
+local Tab = Window:MakeTab({Name = "Farms (Main)",Icon = "rbxassetid://",PremiumOnly = false
+})
+
+
+
+
+local Tab = Window:MakeTab({Name = "Farms (Event)",Icon = "rbxassetid://",PremiumOnly = false
+})
+
+
+
+--autofight
 local areas = game:GetService("Workspace").EventBosses:GetChildren()
 local areasTable = {}
 local selectedValue = nil 
@@ -30,6 +64,35 @@ for _, descendant in ipairs(game:GetService("Workspace").EventBosses:GetDescenda
     end
 end
 
+
+--autosword
+local swords = game:GetService("Workspace"):WaitForChild("HalloweenSowrds"):GetChildren()
+local swordTable = {}
+local selectedSword = nil
+local autoAttackEnabled = false
+local autoswordEnabled = false
+
+for _, sword in pairs(swords) do
+    if sword:FindFirstChild("Head") and sword.Head:FindFirstChild("NameTag") and sword.Head.NameTag:FindFirstChild("UpperText") then
+        local swordName = sword.Head.NameTag.UpperText.Text
+        print("Found Sword:", swordName)
+        table.insert(swordTable, swordName) -- Correctly insert into the table
+    else
+        print("Warning: Missing Head/NameTag/UpperText in:", sword.Name)
+    end
+end
+
+
+local waitTime = 7
+
+
+local Section = Tab:AddSection({
+	Name = "Dont make less 5 seconds you might break the game value."
+})
+
+
+
+
 local Dropdown = Tab:AddDropdown({
     Name = "Mobs",
     Default = areasTable[1] or "N/A", 
@@ -45,94 +108,712 @@ Tab:AddToggle({Name = "Auto Fight",
     Default = false, 
     Callback = function(v)
 
-        autoAttackEnabled = v
-        if autoAttackEnabled then
+    autoAttackEnabled = v
+    if autoAttackEnabled then
 
-            print("AutoAttack enabled.")
+        if notif == true then  
+            OrionLib:MakeNotification({
+                Name = "AutoFight: Enabled",
+                Content = "UnSelected Target " .. selectedValue,
+                Time = notiftime
+            })
+        end
 
+    if selectedValue then
+
+    for _, area in pairs(areas) do
+        if area:FindFirstChild("Head") and area.Head:FindFirstChild("NameTag") and area.Head.NameTag:FindFirstChild("UpperText") then
+            if area.Head.NameTag.UpperText.Text == selectedValue then
+                --print("Matching area found:", selectedValue)
+
+    local function checkAndTeleport()
+        if area and area:FindFirstChild("Head") then
+            local player = game.Players.LocalPlayer
+            local playerPosition = player.Character.HumanoidRootPart.Position
+            local targetPosition = area.Head.Position
+            local radius = 150
+            local distance = (playerPosition - targetPosition).Magnitude
+        
+            if distance <= radius then
+                player.Character.HumanoidRootPart.CFrame = area.Monster.PrimaryPart.CFrame
                 if selectedValue then
-
-                for _, area in pairs(areas) do
-                    if area:FindFirstChild("Head") and area.Head:FindFirstChild("NameTag") and area.Head.NameTag:FindFirstChild("UpperText") then
-                        if area.Head.NameTag.UpperText.Text == selectedValue then
-                            print("Matching area found:", selectedValue)
-
-                            local function checkAndTeleport()
-                                if area and area:FindFirstChild("Head") then
-                                    local player = game.Players.LocalPlayer
-                                    local playerPosition = player.Character.HumanoidRootPart.Position
-                                    local targetPosition = area.Head.Position
-                                    local radius = 150
-                                    local distance = (playerPosition - targetPosition).Magnitude
-                                
-                                    if distance <= radius then
-                                        player.Character.HumanoidRootPart.CFrame = area.Monster.PrimaryPart.CFrame
-                                        if selectedValue then
-                                        end
-                                        --print("Teleported to:", selectedValue, "within radius:", distance)
-                                    else
-                                        --print("Target is out of radius. Distance:", distance)
-                                    end
-                                else
-                                    --print("Area or Head no longer exists.")
-                                end
-                                end
-
-
-                            local function proximity()
-                                for _, descendant in ipairs(area.Table.Attachment:GetDescendants()) do
-                                    if descendant:IsA("ProximityPrompt") then
-                                        descendant.HoldDuration = 0
-                                        descendant.MaxActivationDistance = 17
-                                        fireproximityprompt(descendant)
-                                        --print("Proximity Fired")
-                                    end
-                                end 
-                            end
-
-                
-                            while autoAttackEnabled do
-                            local ingt = game.Players.LocalPlayer:FindFirstChild("InFight")
-                            if ingt then
-                                --print("InFight found, performing actions...")
-                                task.wait(0.1)
-                            else
-                                checkAndTeleport()
-                                task.wait(0.1)
-                                proximity()
-                            end
-                            end
-
-
-                        end
-                    end
                 end
+                --print("Teleported to:", selectedValue, "within radius:", distance)
+            else
+                --print("Target is out of radius. Distance:", distance)
+            end
+        else
+            --print("Area or Head no longer exists.")
+        end
+    end
 
-                    else
-                    print("No value selected from the dropdown.")
-                end
 
+    local function proximity()
+        for _, descendant in ipairs(area.Table.Attachment:GetDescendants()) do
+            if descendant:IsA("ProximityPrompt") then
+                descendant.HoldDuration = 0
+                descendant.MaxActivationDistance = 17
+                fireproximityprompt(descendant)
+                --print("Proximity Fired")
+            end
+        end 
+    end
+
+
+    while autoAttackEnabled do
+    local ingt = game.Players.LocalPlayer:FindFirstChild("InFight")
+    if ingt then
+        --print("InFight found, performing actions...")
+        task.wait(0.1)
+    else
+            checkAndTeleport()
+            task.wait(0.1)
+            proximity()
+        end
+    end
+
+            end
+        end
+    end
 
         else
-            print("AutoAttack disabled.")
-            game:GetService('RunService'):UnbindFromRenderStep("Auto-Attack")
+        --print("No value selected from the dropdown.")
+    end
+
+    else
+
+        if notif == true then  
+            OrionLib:MakeNotification({
+                Name = "AutoFight: Disabled",
+                Content = "UnSelected Target " .. selectedValue,
+                Time = notiftime
+            })
         end
+
+    end
     end
 })
 
 
-if game:GetService("Players").LocalPlayer:FindFirstChild("World").Value == 1 then 
-    local args = {
-        [1] = "-4",
-        [2] = game:GetService("Players").LocalPlayer.Character,
-        [3] = false
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("PortalC"):FireServer(unpack(args))
-else
-    
-end
 
+
+Tab:AddToggle({Name = "Auto Win",
+    Default = false, 
+    Callback = function(v)
+
+    autoswordEnabled = v
+    if autoswordEnabled then
+
+    if notif == true then  
+    OrionLib:MakeNotification({
+        Name = "AutoWin: Enabled",
+        Content = "Selected Target " .. selectedValue,
+        Time = notiftime
+    })
+    end
+
+    local function autowin() 
+
+    local selectedMob = nil
+    for _, v in pairs(areas) do
+        if v:FindFirstChild("Head") and v.Head:FindFirstChild("NameTag") and v.Head.NameTag:FindFirstChild("UpperText") then
+            if v.Head.NameTag.UpperText.Text == selectedValue then
+                selectedMob = v
+                --print("Target Mob:", selectedValue)
+                --print("Model:", v.Name)
+                break
+            end
+        end
+    end
+
+    if selectedMob then
+        local winarea = game.ReplicatedStorage.HALLOWEEN2024FOLDER.BossMobs:GetChildren()
+
+        for _, boss in pairs(winarea) do
+            if boss.Name == selectedMob.Name then
+                local wins = boss:FindFirstChild("Wins") 
+                if wins then
+
+
+                if notif == true then   
+                OrionLib:MakeNotification({
+                    Name = "AutoWin: "..selectedValue,
+                    Content = "(".. wins.Value..") Gained TurkeyLeg                                              ("..waitTime..") Seconds",
+                    Time = waitTime
+                })
+                end
+
+
+                game:GetService("Players").LocalPlayer:FindFirstChild("AntiEvent").Value = 0
+                local args = {
+                    [1] = 1
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                local args = {
+                    [1] = boss.Name 
+                }
+
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinBossEvent"):FireServer(unpack(args))
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                else
+                    --print("No 'Wins' found in:", boss.Name)
+                end
+            end
+        end
+    else
+       -- print("Selected mob not found!")
+    end
+
+    end --local autowin()
+
+
+    while autoswordEnabled do
+    local ingt = game.Players.LocalPlayer:FindFirstChild("InFight")
+    if ingt then
+        task.wait(waitTime)
+    else
+        autowin()
+        task.wait(waitTime)
+    end
+    end
+
+
+
+
+
+    else
+        --print("AutoAttack disabled.")
+        if notif == true then  
+            OrionLib:MakeNotification({
+                Name = "AutoWin: Disabled",
+                Content = "UnSelected Target " .. selectedValue,
+                Time = notiftime
+            })
+        end
+
+    end
+end
+})
+
+
+
+local Slider = Tab:AddSlider({
+    Name = "Auto Win Delay",
+    Min = 0.1,  
+    Max = 10,   
+    Default = 7, 
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 0.1,  
+    Callback = function(value)
+        waitTime = value 
+        print("New wait time: " .. waitTime) 
+    end
+})
+
+
+
+
+
+
+
+local Dropdown = Tab:AddDropdown({
+    Name = "Swords",
+    Default = swordTable[1] or "N/A", 
+    Options = swordTable,
+    Callback = function(value)
+        selectedSword = value
+        print("Selected Sword:", selectedSword)
+    end
+})
+
+
+
+Tab:AddToggle({Name = "Auto Fight Sword",
+    Default = false, 
+    Callback = function(v)
+
+    autoswordEnabled = v
+    if autoswordEnabled then
+
+    --print("AutoAttack enabled.")
+
+    if selectedSword then
+
+    for _, area in pairs(swords) do
+        if area:FindFirstChild("Head") and area.Head:FindFirstChild("NameTag") and area.Head.NameTag:FindFirstChild("UpperText") then
+            if area.Head.NameTag.UpperText.Text == selectedSword then
+                print("Matching area found:", selectedSword)
+
+    local function checkAndTeleport()
+        if area and area:FindFirstChild("Head") then
+            local player = game.Players.LocalPlayer
+            local playerPosition = player.Character.HumanoidRootPart.Position
+            local targetPosition = area.Head.Position
+            local radius = 150
+            local distance = (playerPosition - targetPosition).Magnitude
+        
+            if distance <= radius then
+                player.Character.HumanoidRootPart.CFrame = area.Dummy.PrimaryPart.CFrame
+                if selectedValue then
+                end
+
+            else
+        
+            end
+        else
+        
+        end
+    end
+
+    local function proximity()
+        for _, descendant in ipairs(area.Table.Attachment:GetDescendants()) do
+            if descendant:IsA("ProximityPrompt") then
+                descendant.HoldDuration = 0
+                descendant.MaxActivationDistance = 17
+                fireproximityprompt(descendant)
+                --print("Proximity Fired")
+            end
+        end 
+    end
+
+
+    while autoswordEnabled do
+    local ingt = game.Players.LocalPlayer:FindFirstChild("InFight")
+    if ingt then
+        --print("InFight found, performing actions...")
+        task.wait(0.1)
+    else
+        checkAndTeleport()
+        task.wait(0.1)
+        proximity()
+    end
+    end
+
+
+    end
+    end
+    end
+    else
+    --print("No value selected from the dropdown.")
+    end
+
+
+    else
+        --print("AutoAttack disabled.")
+        
+    end
+end
+})
+
+
+
+
+
+
+Tab:AddToggle({Name = "Auto Teleport",Default = true,Callback = function(v)
+    if v == true then
+        game:GetService('RunService'):BindToRenderStep("crash", 0 , function()
+        if game:GetService("Players").LocalPlayer:FindFirstChild("World").Value == 1 then 
+            local args = {
+                [1] = "-4",
+                [2] = game:GetService("Players").LocalPlayer.Character,
+                [3] = false
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("PortalC"):FireServer(unpack(args))
+        else
+            
+        end
+        end)
+    elseif v == false then
+        game:GetService('RunService'):UnbindFromRenderStep("crash")
+    end 
+end    
+})
+Tab:AddToggle({Name = "AutoClaim Credits",Default = true,Callback = function(v)
+    if v == true then
+        game:GetService('RunService'):BindToRenderStep("crash", 0 , function()
+            game:GetService("ReplicatedStorage"):WaitForChild("GetCreditsEvent"):FireServer()
+        end)
+    elseif v == false then
+        game:GetService('RunService'):UnbindFromRenderStep("crash")
+    end 
+end    
+})
+
+
+Tab:AddToggle({Name = "AutoClaim TurkeyPass",Default = false,Callback = function(v)
+    if v == true then
+
+    elseif v == false then
+
+    end 	
+end    
+})
+
+
+
+
+Tab:AddToggle({Name = "Map Invis",Default = false,Callback = function(v)
+    if v == true then
+
+        sethidden = sethiddenproperty or set_hidden_property or set_hidden_prop
+
+        if sethidden then
+            sethidden(MaterialService, "Use2022Materials", true)
+            sethiddenproperty(game.Lighting, "Technology", "Compatibility") 
+            game:GetService("Lighting").GlobalShadows = false
+        else
+           
+        end
+
+
+
+        game:GetService("Lighting").GlobalShadows = false
+        for _, descendant in ipairs(game.Workspace:GetDescendants()) do
+            if descendant:IsA("BasePart") and not descendant.Parent:FindFirstChild("Humanoid") then
+                descendant.LocalTransparencyModifier = 1
+            end
+        end 
+
+
+    elseif v == false then
+
+        for _, descendant in ipairs(game.Workspace:GetDescendants()) do
+            if descendant:IsA("BasePart") and not descendant.Parent:FindFirstChild("Humanoid") then
+                descendant.LocalTransparencyModifier = 0
+            end
+        end 
+
+    end
+end
+})
+
+
+
+Tab:AddButton({Name = "Reduce lag",Callback = function()
+    
+    _G.Settings = {
+        Players = {
+            ["Ignore Me"] = true, -- Ignore your Character
+            ["Ignore Others"] = true -- Ignore other Characters
+        },
+        Meshes = {
+            Destroy = false, -- Destroy Meshes
+            LowDetail = true -- Low detail meshes (NOT SURE IT DOES ANYTHING)
+        },
+        Images = {
+            Invisible = true, -- Invisible Images
+            LowDetail = false, -- Low detail images (NOT SURE IT DOES ANYTHING)
+            Destroy = false, -- Destroy Images
+        },
+        ["No Particles"] = true, -- Disables all ParticleEmitter, Trail, Smoke, Fire and Sparkles
+        ["No Camera Effects"] = true, -- Disables all PostEffect's (Camera/Lighting Effects)
+        ["No Explosions"] = true, -- Makes Explosion's invisible
+        ["No Clothes"] = true, -- Removes Clothing from the game
+        ["Low Water Graphics"] = true, -- Removes Water Quality
+        ["No Shadows"] = true, -- Remove Shadows
+        ["Low Rendering"] = true, -- Lower Rendering
+        ["Low Quality Parts"] = true -- Lower quality parts
+    }
+    if not _G.Ignore then
+        _G.Ignore = {} -- Add Instances to this table to ignore them (e.g. _G.Ignore = {workspace.Map, workspace.Map2})
+    end
+    if not _G.WaitPerAmount then
+        _G.WaitPerAmount = 500 -- Set Higher or Lower depending on your computer's performance
+    end
+    if _G.SendNotifications == nil then
+        _G.SendNotifications = false -- Set to false if you don't want notifications
+    end
+    if _G.ConsoleLogs == nil then
+        _G.ConsoleLogs = false -- Set to true if you want console logs (mainly for debugging)
+    end
+
+
+
+    if not game:IsLoaded() then
+        repeat
+            task.wait()
+        until game:IsLoaded()
+    end
+    if not _G.Settings then
+        _G.Settings = {
+            Players = {
+                ["Ignore Me"] = true,
+                ["Ignore Others"] = true,
+                ["Ignore Tools"] = true
+            },
+            Meshes = {
+                NoMesh = false,
+                NoTexture = false,
+                Destroy = false
+            },
+            Images = {
+                Invisible = true,
+                Destroy = false
+            },
+            Explosions = {
+                Smaller = true,
+                Invisible = false, -- Not recommended for PVP games
+                Destroy = false -- Not recommended for PVP games
+            },
+            Particles = {
+                Invisible = true,
+                Destroy = false
+            },
+            TextLabels = {
+                LowerQuality = false,
+                Invisible = false,
+                Destroy = false
+            },
+            MeshParts = {
+                LowerQuality = true,
+                Invisible = false,
+                NoTexture = false,
+                NoMesh = false,
+                Destroy = false
+            },
+            Other = {
+                ["FPS Cap"] = 240, -- Set this true to uncap FPS
+                ["No Camera Effects"] = true,
+                ["No Clothes"] = true,
+                ["Low Water Graphics"] = true,
+                ["No Shadows"] = true,
+                ["Low Rendering"] = true,
+                ["Low Quality Parts"] = true,
+                ["Low Quality Models"] = true,
+                ["Reset Materials"] = true,
+                ["Lower Quality MeshParts"] = true
+            }
+        }
+    end
+    local Players, Lighting, StarterGui, MaterialService = game:GetService("Players"), game:GetService("Lighting"), game:GetService("StarterGui"), game:GetService("MaterialService")
+    local ME, CanBeEnabled = Players.LocalPlayer, {"ParticleEmitter", "Trail", "Smoke", "Fire", "Sparkles"}
+    local function PartOfCharacter(Instance)
+        for i, v in pairs(Players:GetPlayers()) do
+            if v ~= ME and v.Character and Instance:IsDescendantOf(v.Character) then
+                return true
+            end
+        end
+        return false
+    end
+    local function DescendantOfIgnore(Instance)
+        for i, v in pairs(_G.Ignore) do
+            if Instance:IsDescendantOf(v) then
+                return true
+            end
+        end
+        return false
+    end
+    local function CheckIfBad(Instance)
+        if not Instance:IsDescendantOf(Players) and (_G.Settings.Players["Ignore Others"] and not PartOfCharacter(Instance) or not _G.Settings.Players["Ignore Others"]) and (_G.Settings.Players["Ignore Me"] and ME.Character and not Instance:IsDescendantOf(ME.Character) or not _G.Settings.Players["Ignore Me"]) and (_G.Settings.Players["Ignore Tools"] and not Instance:IsA("BackpackItem") and not Instance:FindFirstAncestorWhichIsA("BackpackItem") or not _G.Settings.Players["Ignore Tools"])--[[not PartOfCharacter(Instance)]] and (_G.Ignore and not table.find(_G.Ignore, Instance) and not DescendantOfIgnore(Instance) or (not _G.Ignore or type(_G.Ignore) ~= "table" or #_G.Ignore <= 0)) then
+            if Instance:IsA("DataModelMesh") then
+                if _G.Settings.Meshes.NoMesh and Instance:IsA("SpecialMesh") then
+                    Instance.MeshId = ""
+                end
+                if _G.Settings.Meshes.NoTexture and Instance:IsA("SpecialMesh") then
+                    Instance.TextureId = ""
+                end
+                if _G.Settings.Meshes.Destroy or _G.Settings["No Meshes"] then
+                    Instance:Destroy()
+                end
+            elseif Instance:IsA("FaceInstance") then
+                if _G.Settings.Images.Invisible then
+                    Instance.Transparency = 1
+                    Instance.Shiny = 1
+                end
+                if _G.Settings.Images.LowDetail then
+                    Instance.Shiny = 1
+                end
+                if _G.Settings.Images.Destroy then
+                    Instance:Destroy()
+                end
+            elseif Instance:IsA("ShirtGraphic") then
+                if _G.Settings.Images.Invisible then
+                    Instance.Graphic = ""
+                end
+                if _G.Settings.Images.Destroy then
+                    Instance:Destroy()
+                end
+            elseif table.find(CanBeEnabled, Instance.ClassName) then
+                if _G.Settings["Invisible Particles"] or _G.Settings["No Particles"] or (_G.Settings.Other and _G.Settings.Other["Invisible Particles"]) or (_G.Settings.Particles and _G.Settings.Particles.Invisible) then
+                    Instance.Enabled = false
+                end
+                if (_G.Settings.Other and _G.Settings.Other["No Particles"]) or (_G.Settings.Particles and _G.Settings.Particles.Destroy) then
+                    Instance:Destroy()
+                end
+            elseif Instance:IsA("PostEffect") and (_G.Settings["No Camera Effects"] or (_G.Settings.Other and _G.Settings.Other["No Camera Effects"])) then
+                Instance.Enabled = false
+            elseif Instance:IsA("Explosion") then
+                if _G.Settings["Smaller Explosions"] or (_G.Settings.Other and _G.Settings.Other["Smaller Explosions"]) or (_G.Settings.Explosions and _G.Settings.Explosions.Smaller) then
+                    Instance.BlastPressure = 1
+                    Instance.BlastRadius = 1
+                end
+                if _G.Settings["Invisible Explosions"] or (_G.Settings.Other and _G.Settings.Other["Invisible Explosions"]) or (_G.Settings.Explosions and _G.Settings.Explosions.Invisible) then
+                    Instance.BlastPressure = 1
+                    Instance.BlastRadius = 1
+                    Instance.Visible = false
+                end
+                if _G.Settings["No Explosions"] or (_G.Settings.Other and _G.Settings.Other["No Explosions"]) or (_G.Settings.Explosions and _G.Settings.Explosions.Destroy) then
+                    Instance:Destroy()
+                end
+            elseif Instance:IsA("Clothing") or Instance:IsA("SurfaceAppearance") or Instance:IsA("BaseWrap") then
+                if _G.Settings["No Clothes"] or (_G.Settings.Other and _G.Settings.Other["No Clothes"]) then
+                    Instance:Destroy()
+                end
+            elseif Instance:IsA("BasePart") and not Instance:IsA("MeshPart") then
+                if _G.Settings["Low Quality Parts"] or (_G.Settings.Other and _G.Settings.Other["Low Quality Parts"]) then
+                    Instance.Material = Enum.Material.Plastic
+                    Instance.Reflectance = 0
+                end
+            elseif Instance:IsA("TextLabel") and Instance:IsDescendantOf(workspace) then
+                if _G.Settings["Lower Quality TextLabels"] or (_G.Settings.Other and _G.Settings.Other["Lower Quality TextLabels"]) or (_G.Settings.TextLabels and _G.Settings.TextLabels.LowerQuality) then
+                    Instance.Font = Enum.Font.SourceSans
+                    Instance.TextScaled = false
+                    Instance.RichText = false
+                    Instance.TextSize = 14
+                end
+                if _G.Settings["Invisible TextLabels"] or (_G.Settings.Other and _G.Settings.Other["Invisible TextLabels"]) or (_G.Settings.TextLabels and _G.Settings.TextLabels.Invisible) then
+                    Instance.Visible = false
+                end
+                if _G.Settings["No TextLabels"] or (_G.Settings.Other and _G.Settings.Other["No TextLabels"]) or (_G.Settings.TextLabels and _G.Settings.TextLabels.Destroy) then
+                    Instance:Destroy()
+                end
+            elseif Instance:IsA("Model") then
+                if _G.Settings["Low Quality Models"] or (_G.Settings.Other and _G.Settings.Other["Low Quality Models"]) then
+                    Instance.LevelOfDetail = 1
+                end
+            elseif Instance:IsA("MeshPart") then
+                if _G.Settings["Low Quality MeshParts"] or (_G.Settings.Other and _G.Settings.Other["Low Quality MeshParts"]) or (_G.Settings.MeshParts and _G.Settings.MeshParts.LowerQuality) then
+                    Instance.RenderFidelity = 2
+                    Instance.Reflectance = 0
+                    Instance.Material = Enum.Material.Plastic
+                end
+                if _G.Settings["Invisible MeshParts"] or (_G.Settings.Other and _G.Settings.Other["Invisible MeshParts"]) or (_G.Settings.MeshParts and _G.Settings.MeshParts.Invisible) then
+                    Instance.Transparency = 1
+                    Instance.RenderFidelity = 2
+                    Instance.Reflectance = 0
+                    Instance.Material = Enum.Material.Plastic
+                end
+                if _G.Settings.MeshParts and _G.Settings.MeshParts.NoTexture then
+                    Instance.TextureID = ""
+                end
+                if _G.Settings.MeshParts and _G.Settings.MeshParts.NoMesh then
+                    Instance.MeshId = ""
+                end
+                if _G.Settings["No MeshParts"] or (_G.Settings.Other and _G.Settings.Other["No MeshParts"]) or (_G.Settings.MeshParts and _G.Settings.MeshParts.Destroy) then
+                    Instance:Destroy()
+                end
+            end
+        end
+    end
+
+    coroutine.wrap(pcall)(function()
+        if (_G.Settings["Low Water Graphics"] or (_G.Settings.Other and _G.Settings.Other["Low Water Graphics"])) then
+            if not workspace:FindFirstChildOfClass("Terrain") then
+                repeat
+                    task.wait()
+                until workspace:FindFirstChildOfClass("Terrain")
+            end
+            workspace:FindFirstChildOfClass("Terrain").WaterWaveSize = 0
+            workspace:FindFirstChildOfClass("Terrain").WaterWaveSpeed = 0
+            workspace:FindFirstChildOfClass("Terrain").WaterReflectance = 0
+            workspace:FindFirstChildOfClass("Terrain").WaterTransparency = 0
+            if sethiddenproperty then
+                sethiddenproperty(workspace:FindFirstChildOfClass("Terrain"), "Decoration", false)
+            else
+                warn("Your exploit does not support sethiddenproperty, please use a different exploit.")
+            end
+
+        end
+    end)
+    coroutine.wrap(pcall)(function()
+        if _G.Settings["No Shadows"] or (_G.Settings.Other and _G.Settings.Other["No Shadows"]) then
+            Lighting.GlobalShadows = false
+            Lighting.FogEnd = 9e9
+            Lighting.ShadowSoftness = 0
+            if sethiddenproperty then
+                sethiddenproperty(Lighting, "Technology", 2)
+            else
+                warn("Your exploit does not support sethiddenproperty, please use a different exploit.")
+            end
+        end
+    end)
+    coroutine.wrap(pcall)(function()
+        if _G.Settings["Low Rendering"] or (_G.Settings.Other and _G.Settings.Other["Low Rendering"]) then
+            settings().Rendering.QualityLevel = 1
+            settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level04
+        end
+    end)
+    coroutine.wrap(pcall)(function()
+        if _G.Settings["Reset Materials"] or (_G.Settings.Other and _G.Settings.Other["Reset Materials"]) then
+            for i, v in pairs(MaterialService:GetChildren()) do
+                v:Destroy()
+            end
+            MaterialService.Use2022Materials = false
+        end
+    end)
+    coroutine.wrap(pcall)(function()
+        if _G.Settings["FPS Cap"] or (_G.Settings.Other and _G.Settings.Other["FPS Cap"]) then
+            if setfpscap then
+                if type(_G.Settings["FPS Cap"] or (_G.Settings.Other and _G.Settings.Other["FPS Cap"])) == "string" or type(_G.Settings["FPS Cap"] or (_G.Settings.Other and _G.Settings.Other["FPS Cap"])) == "number" then
+                    setfpscap(tonumber(_G.Settings["FPS Cap"] or (_G.Settings.Other and _G.Settings.Other["FPS Cap"])))
+                    if _G.SendNotifications then
+                    end
+                    if _G.ConsoleLogs then
+                        --warn("FPS Capped to " .. tostring(_G.Settings["FPS Cap"] or (_G.Settings.Other and _G.Settings.Other["FPS Cap"])))
+                    end
+                elseif _G.Settings["FPS Cap"] or (_G.Settings.Other and _G.Settings.Other["FPS Cap"]) == true then
+                    setfpscap(1e6)
+                end
+            else
+                --warn("FPS Cap Failed")
+            end
+        end
+    end)
+    game.DescendantAdded:Connect(function(value)
+        wait(_G.LoadedWait or 1)
+        CheckIfBad(value)
+    end)
+    local Descendants = game:GetDescendants()
+    local StartNumber = _G.WaitPerAmount or 500
+    local WaitNumber = _G.WaitPerAmount or 500
+
+
+    for i, v in pairs(Descendants) do
+        CheckIfBad(v)
+        if i == WaitNumber then
+            task.wait()
+            if _G.ConsoleLogs then
+                print("Loaded " .. i .. "/" .. #Descendants)
+            end
+            WaitNumber = WaitNumber + StartNumber
+        end
+    end
+end    
+})
+
+
+
+
+
+
+
+
+
+
+
+
+local Tab = Window:MakeTab({
+    Name = "Mics",
+    Icon = "rbxassetid://",
+    PremiumOnly = false
+})
 
 Tab:AddButton({Name = "Redeem All Codes",Callback = function()
     local areas = game:GetService("ReplicatedStorage"):WaitForChild("Codes"):GetChildren()
@@ -146,4 +827,7 @@ Tab:AddButton({Name = "Redeem All Codes",Callback = function()
     end
 end    
 })
+
+
+
 
