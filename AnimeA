@@ -17,7 +17,7 @@ local Section = Tab:AddSection({
 
 
 
-Tab:AddToggle({Name = "Open Icy Capsule",Default = true,Callback = function(v)
+Tab:AddToggle({Name = "Open Icy Capsule",Default = false,Callback = function(v)
     if v == true then
         game:GetService('RunService'):BindToRenderStep("crash", 0 , function()
             local args = {
