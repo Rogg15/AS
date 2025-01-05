@@ -1,0 +1,39 @@
+
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Xscrobic Prime", HidePremium = false, SaveConfig = true, ConfigFolder = "Prime", IntroEnabled = false, IntroText = "Dahood"})
+local frame = script.Parent
+local player = game.Players.LocalPlayer
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+local Tab = Window:MakeTab({Name = "Info",Icon = "rbxassetid://",PremiumOnly = false
+})
+local Section = Tab:AddSection({
+	Name = "ServerId: "..game.PlaceId
+})
+
+
+
+
+
+Tab:AddToggle({Name = "Open Icy Capsule",Default = true,Callback = function(v)
+    if v == true then
+        game:GetService('RunService'):BindToRenderStep("crash", 0 , function()
+            local args = {
+                [1] = "capsule_christmas2",
+                [2] = {
+                    ["use10"] = true
+                }
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("use_item"):InvokeServer(unpack(args))
+            
+        end)
+    elseif v == false then
+        game:GetService('RunService'):UnbindFromRenderStep("crash")
+    end 
+end    
+})
+
+
