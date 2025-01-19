@@ -1,0 +1,233 @@
+
+repeat  task.wait() until game:IsLoaded()
+repeat task.wait() until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name)
+
+game:GetService('ReplicatedFirst'):RemoveDefaultLoadingScreen()
+queue_on_teleport('game:GetService("ReplicatedFirst"):RemoveDefaultLoadingScreen()')
+
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+Name = "Acc Config",
+Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+LoadingTitle = "Loading.",
+LoadingSubtitle = "by Zrno",
+Theme = {
+    TextColor = Color3.fromRGB(255, 255, 255),  -- White text color
+
+    Background = Color3.fromRGB(15, 15, 15),     -- Dark matte background
+    Topbar = Color3.fromRGB(25, 25, 25),         -- Slightly lighter dark for the top bar
+    Shadow = Color3.fromRGB(10, 10, 10),         -- Dark shadow for subtle depth
+
+    NotificationBackground = Color3.fromRGB(15, 15, 15), -- Dark notification background
+    NotificationActionsBackground = Color3.fromRGB(200, 200, 200), -- Light gray for notification actions
+
+    TabBackground = Color3.fromRGB(50, 50, 50),    -- Matte black tab background
+    TabStroke = Color3.fromRGB(60, 60, 60),        -- Dark border for tabs
+    TabBackgroundSelected = Color3.fromRGB(70, 70, 70),  -- Slightly lighter selected tab background
+    TabTextColor = Color3.fromRGB(255, 255, 255),   -- White text for the tab
+    SelectedTabTextColor = Color3.fromRGB(255, 255, 255), -- White text for selected tab
+
+    ElementBackground = Color3.fromRGB(25, 25, 25),   -- Darker background for elements
+    ElementBackgroundHover = Color3.fromRGB(35, 35, 35), -- Slightly lighter hover effect
+    SecondaryElementBackground = Color3.fromRGB(15, 15, 15), -- Darkest secondary element background
+    ElementStroke = Color3.fromRGB(40, 40, 40),       -- Dark border for elements
+    SecondaryElementStroke = Color3.fromRGB(30, 30, 30), -- Lighter border for secondary elements
+
+    SliderBackground = Color3.fromRGB(50, 138, 220),   -- Keep slider color as it is
+    SliderProgress = Color3.fromRGB(50, 138, 220),     -- Keep slider progress color as it is
+    SliderStroke = Color3.fromRGB(58, 163, 255),       -- Keep slider stroke color as it is
+
+    ToggleBackground = Color3.fromRGB(25, 25, 25),     -- Dark background for toggle
+    ToggleEnabled = Color3.fromRGB(0, 146, 214),       -- Bright blue when enabled
+    ToggleDisabled = Color3.fromRGB(80, 80, 80),       -- Lighter gray when disabled
+    ToggleEnabledStroke = Color3.fromRGB(0, 170, 255), -- Bright blue stroke when enabled
+    ToggleDisabledStroke = Color3.fromRGB(100, 100, 100), -- Gray stroke when disabled
+    ToggleEnabledOuterStroke = Color3.fromRGB(60, 60, 60), -- Dark outer stroke when enabled
+    ToggleDisabledOuterStroke = Color3.fromRGB(50, 50, 50), -- Dark outer stroke when disabled
+
+    DropdownSelected = Color3.fromRGB(40, 40, 40),    -- Dark background for selected dropdown
+    DropdownUnselected = Color3.fromRGB(25, 25, 25),  -- Dark background for unselected dropdown
+
+    InputBackground = Color3.fromRGB(25, 25, 25),     -- Dark input background
+    InputStroke = Color3.fromRGB(60, 60, 60),         -- Dark stroke around the input
+    PlaceholderColor = Color3.fromRGB(180, 180, 180)  -- Light gray for placeholder text
+},
+
+DisableRayfieldPrompts = true,
+DisableBuildWarnings = true, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+ConfigurationSaving = {
+    Enabled = true,
+    FolderName = "zero", -- Create a custom folder for your hub/game
+    FileName = "Big Hub"
+},
+
+Discord = {
+    Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+    Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+    RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+},
+
+KeySystem = false, -- Set this to true to use our key system
+KeySettings = {
+    Title = "Untitled",
+    Subtitle = "Key System",
+    Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+    FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+    SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+    GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+    Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+}
+})
+
+
+
+local Tab = Window:CreateTab("Main", 4483362458)
+
+local Toggle = Tab:CreateToggle({Name = "AutoReply", CurrentValue = false, Flag = "Reply", Callback = function(v) 
+
+	local GameFinished = game:GetService("Workspace"):WaitForChild("_DATA"):WaitForChild("GameFinished")
+    GameFinished:GetPropertyChangedSignal("Value"):Connect(function()
+        print("Changed", GameFinished.Value == true)
+        if GameFinished.Value == true then
+            repeat task.wait() until  game:GetService("Players").LocalPlayer.PlayerGui.ResultsUI.Enabled == true
+            task.wait()
+            if v then
+                local args = {
+                    [1] = "replay"
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("set_game_finished_vote"):InvokeServer(unpack(args))
+
+                local args = {
+                    [1] = "replay"
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("set_game_finished_vote"):InvokeServer(unpack(args))
+            end
+        end
+	end)
+
+
+end})
+
+
+
+local Toggle = Tab:CreateToggle({Name = "Auto Join Event", CurrentValue = false, Flag = "JoinEvent", Callback = function(v) 
+    if v == true then
+        local Players = game:GetService("Players")
+        if game.PlaceId == 8304191830 then 
+
+            if #Players:GetPlayers() >= 4 then
+                local args = {
+                    [1] = "_lobbytemplate_event3"
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("request_join_lobby"):InvokeServer(unpack(args))
+
+                return
+            else
+
+            Rayfield:Notify({Title = "Notification", Content = "Waiting for Accounts Joining", Duration = 3, Image = 4483362458})
+
+            end
+        end
+
+    elseif v == false then
+
+    end 
+end})
+
+
+
+local Toggle = Tab:CreateToggle({Name = "Map Invisible", CurrentValue = false, Flag = "Nomap", Callback = function(v) 
+    if v == true then
+ 
+            for _, descendant in ipairs(game.Workspace:GetDescendants()) do
+                if descendant:IsA("BasePart") then
+                    descendant.LocalTransparencyModifier = 1
+                end
+            end 
+        
+    elseif v == false then
+        for _, descendant in ipairs(game.Workspace:GetDescendants()) do
+            if descendant:IsA("BasePart") then
+                descendant.LocalTransparencyModifier = 0
+            end
+        end 
+    end 
+end})
+
+
+
+local Toggle = Tab:CreateToggle({Name = "Load AutoCardpick", CurrentValue = false, Flag = "Cardpick", Callback = function(v) 
+    if v == true then
+        getgenv().FocusWave = 20 -- Priority limit wave
+        getgenv().PriorityCards = { -- Priority tags when wave = FocusWave
+            "+ Enemy Speed I",
+            "+ Enemy Regen I",
+            "- Cooldown I",
+            "+ Attack I",
+            "+ Range I",
+            "- Cooldown II",
+            "+ Attack II",
+            "+ Range II",
+            "- Cooldown III",
+            "+ Range III",
+            "+ Attack III",
+        }
+        getgenv().Cards = { -- All cards after FocusWave wave ends
+            "+ Gain 2 Random Curses Tier 3",
+            "+ Gain 2 Random Curses Tier 2",
+            "+ Gain 2 Random Curses Tier 1",
+            "+ Enemy Speed III",
+            "+ Enemy Speed II",
+            "+ Enemy Health II",
+            "+ Enemy Health I",
+            "+ Enemy Speed I",
+            "+ Enemy Regen I",
+            "+ Boss Damage I",
+            "+ Boss Damage II",
+            "+ Boss Damage III",
+            "- Cooldown I",
+            "+ Attack I",
+            "+ Range I",
+            "- Cooldown II",
+            "+ Attack II",
+            "+ Range II",
+            "- Cooldown III",
+            "+ Range III",
+            "+ Attack III",
+            "+ New Path"
+        }
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Bocchi-World/Bocchi-Main/refs/heads/main/pickcard.lua"))()
+    
+    elseif v == false then
+
+    end 
+end})
+
+local Toggle = Tab:CreateToggle({Name = "Load Nousigi hub", CurrentValue = false, Flag = "nousigihub", Callback = function(v) 
+    if v == true then
+        loadstring(game:HttpGet("https://nousigi.com/loader.lua"))() 
+    elseif v == false then
+      
+    end 
+end})
+
+
+
+
+
+
+
+
+
+
+
+
+Rayfield:LoadConfiguration()
+
+
+
