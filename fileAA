@@ -163,45 +163,56 @@ end})
 
 local Toggle = Tab:CreateToggle({Name = "Load AutoCardpick", CurrentValue = false, Flag = "Cardpick", Callback = function(v) 
     if v == true then
-        getgenv().FocusWave = 20 -- Priority limit wave
-        getgenv().PriorityCards = { -- Priority tags when wave = FocusWave
-            "+ Enemy Speed I",
-            "+ Enemy Regen I",
-            "- Cooldown I",
-            "+ Attack I",
-            "+ Range I",
-            "- Cooldown II",
-            "+ Attack II",
-            "+ Range II",
-            "- Cooldown III",
-            "+ Range III",
-            "+ Attack III",
-        }
-        getgenv().Cards = { -- All cards after FocusWave wave ends
-            "+ Gain 2 Random Curses Tier 3",
-            "+ Gain 2 Random Curses Tier 2",
-            "+ Gain 2 Random Curses Tier 1",
-            "+ Enemy Speed III",
-            "+ Enemy Speed II",
-            "+ Enemy Health II",
-            "+ Enemy Health I",
-            "+ Enemy Speed I",
-            "+ Enemy Regen I",
-            "+ Boss Damage I",
-            "+ Boss Damage II",
-            "+ Boss Damage III",
-            "- Cooldown I",
-            "+ Attack I",
-            "+ Range I",
-            "- Cooldown II",
-            "+ Attack II",
-            "+ Range II",
-            "- Cooldown III",
-            "+ Range III",
-            "+ Attack III",
-            "+ New Path"
-        }
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Bocchi-World/Bocchi-Main/refs/heads/main/pickcard.lua"))()
+getgenv().FocusWave = 20 -- Priority limit wave
+getgenv().PriorityCards = { -- Priority tags when wave = FocusWave
+    "+ Enemy Speed I",
+    "- Cooldown I",
+    "+ Attack I",
+    "+ Range I",
+    "+ Gain 2 Random Effects Tier 1",
+    "- Cooldown II",
+    "+ Attack II",
+    "+ Range II",
+    "+ Gain 2 Random Effects Tier 2",
+    "- Cooldown III",
+    "+ Range III",
+    "+ Attack III",
+    "+ Gain 2 Random Effects Tier 3"
+}
+getgenv().Cards = { -- All cards after FocusWave wave ends
+    "+ Explosive Deaths I",
+    "+ Explosive Deaths II",
+    "+ Explosive Deaths III",
+    "+ Gain 2 Random Curses Tier 3",
+    "+ Gain 2 Random Curses Tier 2",
+    "+ Gain 2 Random Curses Tier 1",
+    "+ Enemy Speed III",
+    "+ Enemy Speed II",
+    "+ Enemy Health II",
+    "+ Enemy Health I",
+    "+ Enemy Speed I",
+    "+ Enemy Regen I",
+    "+ Enemy Regen II",
+    "+ Enemy Regen III",
+    "+ Boss Damage I",
+    "+ Boss Damage II",
+    "+ Boss Damage III",
+    "- Cooldown I",
+    "+ Attack I",
+    "+ Range I",
+    "+ Gain 2 Random Effects Tier 1",
+    "- Cooldown II",
+    "+ Attack II",
+    "+ Range II",
+    "+ Gain 2 Random Effects Tier 2",
+    "- Cooldown III",
+    "+ Range III",
+    "+ Attack III",
+    "+ Gain 2 Random Effects Tier 3",
+    "+ New Path"
+}
+-- Priority from bottom to top in all items
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Bocchi-World/Bocchi-Main/refs/heads/main/pickcard.lua"))()
     
     elseif v == false then
 
