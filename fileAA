@@ -86,6 +86,17 @@ KeySettings = {
 
 local Tab = Window:CreateTab("Main", 4483362458)
 
+local Button = Tab:CreateButton({Name = "Join Christmas Event", Callback = function()
+
+    local args = {
+        [1] = "_lobbytemplate_event3"
+    }
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("request_join_lobby"):InvokeServer(unpack(args))
+    
+
+end})
+
 local Toggle = Tab:CreateToggle({Name = "AutoReply", CurrentValue = false, Flag = "Reply", Callback = function(v) 
 
 	local GameFinished = game:GetService("Workspace"):WaitForChild("_DATA"):WaitForChild("GameFinished")
