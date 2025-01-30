@@ -125,6 +125,51 @@ local Toggle = Tab:CreateToggle({Name = "AutoReply", CurrentValue = false, Flag 
 end})
 
 
+local Toggle = Tab:CreateToggle({Name = "Buy Capsule", CurrentValue = false, Flag = "BCapsule", Callback = function(v) 
+
+
+    if v == true then
+        game:GetService('RunService'):BindToRenderStep("Anti-Slow", 0 , function()
+            local args = {
+                [1] = "capsule_christmas2",
+                [2] = "event",
+                [3] = "event_shop",
+                [4] = "100"
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("buy_item_generic"):InvokeServer(unpack(args))
+    end)
+    elseif v == false then
+        game:GetService('RunService'):UnbindFromRenderStep("Anti-Slow")
+    end
+    
+
+end})
+
+
+local Toggle = Tab:CreateToggle({Name = "Open Capsule", CurrentValue = false, Flag = "oCapsule", Callback = function(v) 
+
+
+    if v == true then
+    game:GetService('RunService'):BindToRenderStep("Anti-Slow", 0 , function()
+            local args = {
+                [1] = "capsule_christmas2",
+                [2] = {
+                    ["use10"] = true
+                }
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("endpoints"):WaitForChild("client_to_server"):WaitForChild("use_item"):InvokeServer(unpack(args))
+            
+    end)
+    elseif v == false then
+        game:GetService('RunService'):UnbindFromRenderStep("Anti-Slow")
+    end
+    
+
+end})
+
+
 
 local Toggle = Tab:CreateToggle({Name = "Auto Join Event", CurrentValue = false, Flag = "JoinEvent", Callback = function(v) 
     if v == true then
