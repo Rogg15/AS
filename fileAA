@@ -283,7 +283,7 @@ local Toggle = Tab:CreateToggle({Name = "Load Nousigi hub", CurrentValue = false
     end 
 end})
 
-local Toggle = Tab:CreateToggle({Name = "Load Buang hub", CurrentValue = false, Flag = "nousigihub", Callback = function(v) 
+local Toggle = Tab:CreateToggle({Name = "Load Buang hub", CurrentValue = false, Flag = "BuangHub", Callback = function(v) 
     if v == true then
         loadstring(game:HttpGet("https://raw.githubusercontent.com/buang5516/buanghub/main/BUANGHUB.lua"))()
     elseif v == false then
